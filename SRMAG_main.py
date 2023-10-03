@@ -1,7 +1,7 @@
 import time
 import tensorflow as tf
 #from LSSA_model import Model
-from SRMAG_model import Model
+from LSSAA_Lls4_model import Model
 # from LS_LSTM_SNP_model_model import Model
 #from LSSAA_model import Model
 from six.moves import cPickle
@@ -12,10 +12,24 @@ import csv
 
 if __name__ == '__main__':
 
-
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--root', default='data/')
+    # parser.add_argument('--dataset', default='gowalla')
+    # parser.add_argument('--batch_size', default=50, type=int)
+    # parser.add_argument('--lr', default=0.001, type=float)
+    # parser.add_argument('--maxlen_l', default=200, type=int)
+    # parser.add_argument('--maxlen_s', default=50, type=int)
+    # parser.add_argument('--hidden_units', default=100, type=int)
+    # parser.add_argument('--num_epochs', default=201, type=int)
+    # parser.add_argument('--num_lblocks', default=2, type=int)
+    # parser.add_argument('--num_sblocks', default=2, type=int)
+    # parser.add_argument('--num_lheads', default=2, type=int)
+    # parser.add_argument('--num_sheads', default=2, type=int)
+    # parser.add_argument('--dropout_rate', default=0.5, type=float)
+    # parser.add_argument('--l2_emb', default=0.0, type=float)
     tf.compat.v1.reset_default_graph()
     parser = argparse.ArgumentParser()
-    #     # 调整的参数
+    # 调整的参数
     parser.add_argument('--l2_emb', default=0.0, type=float)
     parser.add_argument('--hidden_units', default=200, type=int)
 
@@ -45,10 +59,10 @@ if __name__ == '__main__':
 
     # gawalla
     item_num = 11364
-    # movielens
-    #item_num = 7287
     # Tmall
-    # item_num = 253194
+    # item_num = 48804
+    # movielens
+    # item_num = 7287
     model = Model(item_num, args, args.maxlen_l, args.maxlen_s)
     sess.run(tf.compat.v1.global_variables_initializer())
 
@@ -63,7 +77,19 @@ if __name__ == '__main__':
     with open(args.root + args.dataset + '/test.pkl', 'rb') as tf2:
         test_user, test_long_seq, test_short_seq, test_item = cPickle.load(tf2)
 
-
+    # file_name = 'E:/yanyi_code/LSSA-master/data/' + str(i) + '_' + str(j) + '_' + str(k)+'_'+str(n)
+    file_name = '/home/pc2/bxz/LSSA-master_lstm/data/' + 'four_channel_No2_gowalla'
+    with open(f'{file_name}', 'w', newline='', encoding='utf-8') as csv_file:
+        # csv_file = open(file_name + '/result.csv', 'rb', 'w', newline='', encoding='utf-8')
+        # 调用open()函数打开csv文件，传入参数：文件名“demo.csv”、写入模式“w”、newline=''、encoding='utf-8'。
+        writer = csv.writer(csv_file)  # 用csv.writer()函数创建一个writer对象。
+        # writer.writerow('\ufeff')  # 解决使用excel打开时中文字符出现乱码情况
+        writer.writerow(['args.l2_emb', 'args.hidden_units', 'args.dropout_rate'])
+        writer.writerow([args.l2_emb, args.hidden_units, args.dropout_rate])
+        writer.writerow(['HR@10', 'HR@20', 'NDCG@10', 'NDCG@20', 'MAP'])
+        print("此时参数为:", 'args.l2_emb', args.l2_emb, 'args.hidden_units', args.hidden_units,
+              'args.dropout_rate', args.dropout_rate)
+        # 调用writer对象的writerow()方法，可以在csv文件里写入一行文字 “电影”和“豆瓣评分”。
 
         for epoch in range(1, args.num_epochs + 1):
             print('training--------------', epoch)
@@ -136,11 +162,11 @@ if __name__ == '__main__':
                     print('HR@' + str(k) + ' = ' + str(np.mean(hit_result[k])) + ',  ' +
                           'NDCG@' + str(k) + ' = ' + str(np.mean(ndcg_result[k])))
                 print('MAP' + ' = ' + str(np.mean(apks)))
-
+                writer.writerow([HR[0], HR[1], NDCG[0], NDCG[1], str(np.mean(apks))])
 
 
                 t0 = time.time()
-
+        csv_file.close()  # 写入完成后，关闭文件
         print("Done")
 
 

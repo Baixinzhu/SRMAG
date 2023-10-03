@@ -33,8 +33,8 @@ class Model():
         self.short = tf.nn.embedding_lookup(item_emb_table, self.short_seq)
         # 此处添加一个通道（不同于self.long,self.short):使用长期序列的嵌入层输出
         with tf.compat.v1.variable_scope("lstm_long", reuse=reuse):
-            gsnp = GSNPCell(units=32, dropout=0.2, return_sequences=True)
-            self.long_lstm = gsnp(self.long)
+            lstm_snp = GSNPCell(units=32, dropout=0.2, return_sequences=True)
+            self.long_lstm = lstm_snp(self.long)
             # 扩充两个点乘的矩阵使之维度相等
             pad1 = self.long_lstm.shape[2] - mask_long_lstm.shape[2]
             pad2 = mask_long_lstm.shape[1] - self.long_lstm.shape[1]
@@ -61,8 +61,8 @@ class Model():
                                                  dropout_rate=args.dropout_rate, is_training=self.is_training)
                     self.long_lstm *= mask_long_lstm
         with tf.compat.v1.variable_scope("lstm_short", reuse=reuse):
-            gsnps = GSNPCell(units=32, dropout=0.2, return_sequences=True)
-            self.short_lstm = gsnps(self.short)
+            lstms_snp = GSNPCell(units=32, dropout=0.2, return_sequences=True)
+            self.short_lstm = lstms_snp(self.short)
             # 扩充两个点乘的矩阵使之维度相等
             pad_s = self.short_lstm.shape[2] - mask_short_lstm.shape[2]
             pad_ms = mask_short_lstm.shape[1] - self.short_lstm.shape[1]
